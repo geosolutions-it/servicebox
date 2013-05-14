@@ -94,12 +94,16 @@ public class HTTPWebGISFileDownload extends HttpServlet {
 			throws ServletException {
 
 		String fileName = (String) request.getParameter("file");
+                String outFileName = (String) request.getParameter("fileName");
 		String temp = this.props.getProperty("temp");
 		String filePath = temp + "/" + fileName;
+                
+                if(outFileName == null)
+                    outFileName=fileName;
 
 		response.setContentType("application/force-download");
 		response.setHeader("Content-Disposition", "attachment; filename="
-				+ fileName);
+				+ outFileName);
 
 		PrintWriter out = null;
 
