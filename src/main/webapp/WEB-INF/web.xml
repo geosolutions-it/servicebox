@@ -8,7 +8,7 @@
 	<context-param>
 		<description>location for the property file used in this application</description>
 		<param-name>app.properties</param-name>
-		<param-value>/WEB-INF/classes/app.properties</param-value>
+		<param-value>/servicebox.properties</param-value>
 	</context-param>
 
 	<!-- Save Servlet -->

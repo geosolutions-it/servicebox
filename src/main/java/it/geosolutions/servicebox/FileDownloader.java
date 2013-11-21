@@ -46,7 +46,7 @@ public class FileDownloader extends HttpServlet {
     public void init(ServletConfig servletConfig) throws ServletException {
         super.init(servletConfig);
         String appPropertyFile = getServletContext().getInitParameter(PROPERTY_FILE_PARAM);
-        InputStream inputStream = getServletContext().getResourceAsStream(appPropertyFile);
+        InputStream inputStream = FileDownloader.class.getResourceAsStream(appPropertyFile);
         try {
             properties.load(inputStream);
         } catch (IOException e) {

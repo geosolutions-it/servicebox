@@ -47,14 +47,14 @@ import org.w3c.dom.NodeList;
  */
 public class KMZUploader extends HttpServlet {
 
-    /**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	
 	private final static String PROPERTY_FILE_PARAM = "app.properties";
+	
     private final static Logger LOGGER = Logger.getLogger(KMZUploader.class.getSimpleName());
+    
     private Properties properties = new Properties();
+    
     private String tempDirectory;
 
     public KMZUploader() {
@@ -65,7 +65,8 @@ public class KMZUploader extends HttpServlet {
     public void init(ServletConfig servletConfig) throws ServletException {
         super.init(servletConfig);
         String appPropertyFile = getServletContext().getInitParameter(PROPERTY_FILE_PARAM);
-        InputStream inputStream = getServletContext().getResourceAsStream(appPropertyFile);
+        InputStream inputStream = KMZUploader.class.getResourceAsStream(appPropertyFile);
+        
         try {
             properties.load(inputStream);
         } catch (IOException e) {

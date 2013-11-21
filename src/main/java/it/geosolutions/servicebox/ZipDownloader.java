@@ -26,9 +26,13 @@ import net.sf.json.JSONSerializer;
 public class ZipDownloader extends HttpServlet {
 
 	private static final long serialVersionUID = -1345715662499033375L;
+	
 	private final static Logger LOGGER = Logger.getLogger(FileDownloader.class.getSimpleName());
+	
     private Properties properties = new Properties();
+    
     private String tempDirectory;
+    
     private final static String PROPERTY_FILE_PARAM = "app.properties";
 
     public ZipDownloader() {
@@ -38,7 +42,8 @@ public class ZipDownloader extends HttpServlet {
     public void init(ServletConfig servletConfig) throws ServletException {
         super.init(servletConfig);
         String appPropertyFile = getServletContext().getInitParameter(PROPERTY_FILE_PARAM);
-        InputStream inputStream = getServletContext().getResourceAsStream(appPropertyFile);
+        InputStream inputStream = ZipDownloader.class.getResourceAsStream(appPropertyFile);
+        
         try {
             properties.load(inputStream);
         } catch (IOException e) {

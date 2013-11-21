@@ -36,8 +36,13 @@ import sun.misc.BASE64Decoder;
 public class UploadCanvas extends HttpServlet {
 
 	private static final long serialVersionUID = -2477077719929697199L;
+	
 	private final static Logger LOGGER = Logger.getLogger(UploadCanvas.class.getSimpleName());
+	
 	private static final char COMMA = ',';
+	
+	private final static String PROPERTY_FILE_PARAM = "app.properties";
+	
 	private static String path = null;
 
 	private Properties props;
@@ -51,12 +56,9 @@ public class UploadCanvas extends HttpServlet {
 	public void init(ServletConfig servletConfig) throws ServletException {
 		super.init(servletConfig);
 
-		InputStream inputStream = this.getClass().getResourceAsStream(
-				"/servicebox.properties");
-		if(inputStream == null) {
-			inputStream = getServletContext().getResourceAsStream(
-				"/WEB-INF/classes/app.properties");
-		}
+		String appPropertyFile = getServletContext().getInitParameter(PROPERTY_FILE_PARAM);
+		InputStream inputStream = UploadCanvas.class.getResourceAsStream(appPropertyFile);
+		
 		Properties props = new Properties();
 
 		try {

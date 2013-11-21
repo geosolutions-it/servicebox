@@ -38,6 +38,9 @@ public class HTTPWebGISFileUpload extends HttpServlet {
 	 * Serialization UID.
 	 */
 	private static final long serialVersionUID = 2097550601489338403L;
+	
+	private final static String PROPERTY_FILE_PARAM = "app.properties";
+	
 	private final static Logger LOGGER = Logger
 			.getLogger(HTTPWebGISFileDownload.class.toString());
 
@@ -52,12 +55,9 @@ public class HTTPWebGISFileUpload extends HttpServlet {
 	public void init(ServletConfig servletConfig) throws ServletException {
 		super.init(servletConfig);
 
-		InputStream inputStream = this.getClass().getResourceAsStream(
-				"/servicebox.properties");
-		if(inputStream == null) {
-			inputStream = getServletContext().getResourceAsStream(
-				"/WEB-INF/classes/app.properties");
-		}
+		String appPropertyFile = getServletContext().getInitParameter(PROPERTY_FILE_PARAM);
+		InputStream inputStream = HTTPWebGISFileUpload.class.getResourceAsStream(appPropertyFile);
+		
 		Properties props = new Properties();
 
 		try {

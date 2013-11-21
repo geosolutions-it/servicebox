@@ -36,6 +36,8 @@ public class HTTPWebGISFileDownload extends HttpServlet {
 	 */
 	private static final long serialVersionUID = -138662992151524493L;
 
+	private final static String PROPERTY_FILE_PARAM = "app.properties";
+	
 	private final static Logger LOGGER = Logger
 			.getLogger(HTTPWebGISFileDownload.class.toString());
 
@@ -49,12 +51,10 @@ public class HTTPWebGISFileDownload extends HttpServlet {
 	 */
 	public void init(ServletConfig servletConfig) throws ServletException {
 		super.init(servletConfig);
-		InputStream inputStream = this.getClass().getResourceAsStream(
-				"/servicebox.properties");
-		if(inputStream == null) {
-			inputStream = getServletContext().getResourceAsStream(
-				"/WEB-INF/classes/app.properties");
-		}
+		
+		String appPropertyFile = getServletContext().getInitParameter(PROPERTY_FILE_PARAM);
+		InputStream inputStream = HTTPWebGISFileDownload.class.getResourceAsStream(appPropertyFile);
+		
 		Properties props = new Properties();
 
 		try {
