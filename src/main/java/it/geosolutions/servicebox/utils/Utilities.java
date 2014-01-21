@@ -1,8 +1,12 @@
 package it.geosolutions.servicebox.utils;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.StringReader;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -65,5 +69,35 @@ public final class Utilities {
 		s.insertBefore(fdh, firstEl);
 	    
     }
+
+	/**
+	 * Write a simple message on response
+	 * 
+	 * @param response
+	 * @param text
+	 * @throws IOException
+	 */
+	public static void writeResponse(HttpServletResponse response, String text, Logger LOGGER)
+			throws IOException {
+		PrintWriter writer = null;
+		try {
+			writer = response.getWriter();
+			writer.write(text);
+		} catch (IOException e) {
+			if (LOGGER != null && LOGGER.isLoggable(Level.SEVERE))
+				LOGGER.log(Level.SEVERE, e.getMessage());
+		} finally {
+			try {
+				if (writer != null) {
+					writer.flush();
+					writer.close();
+				}
+			} catch (Exception e) {
+				if (LOGGER != null && LOGGER.isLoggable(Level.SEVERE))
+					LOGGER.log(Level.SEVERE, "Error closing response stream ",
+							e);
+			}
+		}
+	}
 
 }
