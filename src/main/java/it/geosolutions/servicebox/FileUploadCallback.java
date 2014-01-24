@@ -25,7 +25,9 @@ import it.geosolutions.servicebox.utils.Utilities;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -69,11 +71,7 @@ public class FileUploadCallback implements Serializable, Callback {
 	public ServiceBoxActionParameters onGet(HttpServletRequest request,
 			HttpServletResponse response,
 			ServiceBoxActionParameters callbackResult) throws IOException {
-		if (callbackResult == null) {
-			callbackResult = new ServiceBoxActionParameters();
-		}
-		callbackResult.setSuccess(true);
-		return callbackResult;
+		return onPost(request, response, callbackResult);
 	}
 
 	/**
@@ -141,7 +139,7 @@ public class FileUploadCallback implements Serializable, Callback {
 
 				itemSize = items.size();
 				callbackResult.setItems(items);
-				if (itemSize < this.callbackConfiguration.getMaxItems()) {
+				if (itemSize <= this.callbackConfiguration.getMaxItems()) {
 					// only if item size not exceeded max
 					for (FileItem item : items) {
 						if (item.getSize() > maxSize) {
@@ -175,24 +173,35 @@ public class FileUploadCallback implements Serializable, Callback {
 
 		}
 
+		// prepare and send error if exists
 		boolean error = false;
+		int errorCode = -1;
 		String message = null;
+		Map<String, Object> errorDetails = null;
 		if (itemSize > this.callbackConfiguration.getMaxItems()) {
+			errorDetails = new HashMap<String, Object>();
 			error = true;
+			errorDetails.put("expected", this.callbackConfiguration.getMaxItems());
+			errorDetails.put("found", itemSize);
+			errorCode = Utilities.JSON_MODEL.KNOWN_ERRORS.MAX_ITEMS.ordinal();
 			message = "Max items size exceeded (expected: '"
 					+ this.callbackConfiguration.getMaxItems() + "', found: '"
 					+ itemSize + "').";
 		} else if (maxSize > this.callbackConfiguration.getMaxSize()) {
+			errorDetails = new HashMap<String, Object>();
 			error = true;
+			errorDetails.put("expected", this.callbackConfiguration.getMaxSize());
+			errorDetails.put("found", maxSize);
+			errorDetails.put("item", itemName);
+			errorCode = Utilities.JSON_MODEL.KNOWN_ERRORS.MAX_ITEM_SIZE.ordinal();
 			message = " Max item size exceeded (expected: '"
 					+ this.callbackConfiguration.getMaxSize() + "', found: '"
 					+ maxSize + "' on item '" + itemName + "').";
 		}
 		if (error) {
 			callbackResult.setSuccess(false);
-			Utilities.writeResponse(response,
-					"{ \"success\":false, \"errorMessage\":\"" + message
-							+ "\"}", null);
+			Utilities.writeError(response, errorCode, errorDetails, message,
+					LOGGER);
 		} else {
 			callbackResult.setSuccess(true);
 		}

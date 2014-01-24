@@ -1,8 +1,12 @@
 package it.geosolutions.servicebox.utils;
 
+import it.geosolutions.servicebox.FileUploadCallback;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -11,6 +15,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.mortbay.util.ajax.JSON;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -100,4 +105,107 @@ public final class Utilities {
 		}
 	}
 
+	/**
+	 * Write a JSON error message on response
+	 * 
+	 * @param response
+	 * @param errorCode
+	 * @param errorDetails
+	 * @param errorMessage
+	 * @param LOGGER
+	 * @throws IOException
+	 */
+	public static void writeError(HttpServletResponse response, int errorCode, Map<String, Object> errorDetails, String errorMessage, Logger LOGGER)
+			throws IOException {
+		Map<String, Object> messageJSON = new HashMap<String, Object>();
+		messageJSON.put(JSON_MODEL.SUCCESS, false);
+		messageJSON.put(JSON_MODEL.ERROR_CODE, errorCode);
+		if(errorDetails != null){
+			messageJSON.put(JSON_MODEL.DETAILS, errorDetails);
+		}
+		messageJSON.put(JSON_MODEL.ERROR_MESSAGE, errorMessage);	
+		String message = JSON.toString(messageJSON);
+		PrintWriter writer = null;
+		try {
+			writer = response.getWriter();
+			response.setContentType("text/html");
+			writer.write(message);
+		} catch (IOException e) {
+			if (LOGGER != null && LOGGER.isLoggable(Level.SEVERE))
+				LOGGER.log(Level.SEVERE, e.getMessage());
+		} finally {
+			try {
+				if (writer != null) {
+					writer.flush();
+					writer.close();
+				}
+			} catch (Exception e) {
+				if (LOGGER != null && LOGGER.isLoggable(Level.SEVERE))
+					LOGGER.log(Level.SEVERE, "Error closing response stream ",
+							e);
+			}
+		}
+	}
+	
+	/**
+	 * Model to write JSON error information on the response
+	 * <br/><br/>
+     * The format for an error response is:
+	 * <br/>
+	 * <pre>{
+     *      "errorMessage":"message",
+     *      "details":{`details map`},
+     *      "errorCode":`code of the error`,
+     *      "success":false
+     * }</pre>
+	 * 
+	 * @author adiaz
+	 *
+	 */
+	public static class JSON_MODEL{
+		
+		/**
+		 * Success key
+		 */
+		public static final String SUCCESS = "success";
+		
+		/**
+		 * Error code key
+		 */
+		public static final String ERROR_CODE = "errorCode";
+		
+		/**
+		 * Error details key
+		 */
+		public static final String DETAILS = "details";
+		
+		/**
+		 * Error message key
+		 */
+		public static final String ERROR_MESSAGE = "errorMessage";
+		
+		/**
+		 * Known error codes for the JSON model
+		 * 
+		 * @author adiaz
+		 *
+		 */
+		public enum KNOWN_ERRORS{
+			/**
+			 * Maximum items exceeded on upload action
+			 * 
+			 * @see FileUploadCallback
+			 */
+			MAX_ITEMS,
+			/**
+			 * Maximum item size exceeded on upload action
+			 * 
+			 * @see FileUploadCallback
+			 */
+			MAX_ITEM_SIZE
+		}
+		
+	}
+
 }
+

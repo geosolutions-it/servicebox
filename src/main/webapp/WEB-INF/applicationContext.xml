@@ -27,6 +27,27 @@
 			</list>
 		</property>
 	</bean>
+
+	<!-- Alternative fileupload callback -->
+	<bean id="fileUploadCallbackAlternative" class="it.geosolutions.servicebox.FileUploadCallback">
+		<property name="callbackConfiguration">
+			<bean class="it.geosolutions.servicebox.FileUploadCallbackConfiguration">
+				<property name="maxSize" value="0" />
+				<property name="maxItems" value="0" />
+				<property name="tempFolder" value="/tmp" />
+				<property name="buffSize" value="1024" />
+			</bean>
+		</property>
+	</bean>
+
+	<!-- Alternative service box handler -->
+	<bean id="serviceBoxActionHandlerAlternative" class="it.geosolutions.servicebox.ServiceBoxActionHandlerImpl">
+		<property name="callbacks">
+			<list>
+				<ref bean="fileUploadCallbackAlternative" />
+			</list>
+		</property>
+	</bean>
   
     <bean class="org.springframework.beans.factory.config.PropertyOverrideConfigurer">
         <property name="ignoreResourceNotFound" value="true"/>

@@ -10,7 +10,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -29,7 +28,7 @@ import org.w3c.dom.Document;
  * @author Tobia di Pisa
  * 
  */
-public class HTTPWebGISSave extends HttpServlet {
+public class HTTPWebGISSave extends ServiceBoxActionServlet {
 
 	/**
 	 * Serialization UID.
@@ -49,9 +48,8 @@ public class HTTPWebGISSave extends HttpServlet {
 	 *            The {@link HttpServletResponse} object by which we can
 	 *            response to the client
 	 */
-	public void doGet(HttpServletRequest httpServletRequest,
-			HttpServletResponse httpServletResponse) throws IOException,
-			ServletException {
+	protected void doGetAction(HttpServletRequest request,
+			HttpServletResponse response, ServiceBoxActionParameters actionParameters) throws ServletException, IOException {
 	}
 
 	/**
@@ -64,8 +62,8 @@ public class HTTPWebGISSave extends HttpServlet {
 	 *            The {@link HttpServletResponse} object by which we response to
 	 *            the client
 	 */
-	public void doPost(HttpServletRequest httpServletRequest,
-			HttpServletResponse httpServletResponse) throws ServletException {
+	protected void doPostAction(HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse, ServiceBoxActionParameters actionParameters) throws ServletException, IOException {
 
 		InputStream is = null;
 

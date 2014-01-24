@@ -70,7 +70,8 @@ public abstract class ServiceBoxActionServlet extends HttpServlet {
 
 	/**
 	 * Name of this action. You must change this name on each action before on
-	 * init method. It's used to save specific configuration by action
+	 * init method. It's used to save specific configuration by action.
+	 * If you don't change it, it use the simple class name of the runtime servlet
 	 */
 	protected String actionName;
 
@@ -86,6 +87,7 @@ public abstract class ServiceBoxActionServlet extends HttpServlet {
 	 * change the action name
 	 */
 	public void init(ServletConfig servletConfig) throws ServletException {
+		this.actionName = this.getClass().getSimpleName();
 		super.init(servletConfig);
 		String appPropertyFile = getServletContext().getInitParameter(
 				PROPERTY_FILE_PARAM);
