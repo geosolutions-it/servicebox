@@ -21,6 +21,9 @@
 package it.geosolutions.servicebox;
 
 import java.io.Serializable;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Default configuration for a File upload callback
@@ -39,6 +42,8 @@ public class FileUploadCallbackConfiguration implements Serializable {
 	private int maxItems;
 	private String tempFolder;
 	int buffSize;
+	private String fileTypes;
+	private List<Pattern> fileTypePatterns;
 
 	/**
 	 * @return the maxSize
@@ -98,6 +103,42 @@ public class FileUploadCallbackConfiguration implements Serializable {
 	 */
 	public void setBuffSize(int buffSize) {
 		this.buffSize = buffSize;
+	}
+
+	/**
+	 * @return the fileTypes
+	 */
+	public String getFileTypes() {
+		return fileTypes;
+	}
+
+	/**
+	 * @param fileTypes the fileTypes to set
+	 */
+	public void setFileTypes(String fileTypes) {
+		this.fileTypes = fileTypes;
+		// compile patterns
+		if(this.fileTypes != null){
+			List<Pattern> patterns = new LinkedList<Pattern>();
+			for(String fileType: this.fileTypes.split(",")){
+				patterns.add(Pattern.compile(fileType));
+			}
+			this.fileTypePatterns = patterns;
+		}
+	}
+
+	/**
+	 * @return the fileTypePatterns
+	 */
+	public List<Pattern> getFileTypePatterns() {
+		return fileTypePatterns;
+	}
+
+	/**
+	 * @param fileTypePatterns the fileTypePatterns to set
+	 */
+	public void setFileTypePatterns(List<Pattern> fileTypePatterns) {
+		this.fileTypePatterns = fileTypePatterns;
 	}
 
 }

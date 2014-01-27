@@ -16,6 +16,7 @@
 				<property name="maxItems" value="100" />
 				<property name="tempFolder" value="/tmp" />
 				<property name="buffSize" value="1024" />
+				<property name="fileTypes" value="([^*]+(\.(?i)(kml|kmz))$),([^*]+(\.(?i)(map))$)" />
 			</bean>
 		</property>
 	</bean>

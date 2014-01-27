@@ -202,7 +202,13 @@ public final class Utilities {
 			 * 
 			 * @see FileUploadCallback
 			 */
-			MAX_ITEM_SIZE
+			MAX_ITEM_SIZE,
+			/**
+			 * Item name regular expressions not matched
+			 * 
+			 * @see FileUploadCallback
+			 */
+			ITEM_TYPE
 		}
 		
 	}

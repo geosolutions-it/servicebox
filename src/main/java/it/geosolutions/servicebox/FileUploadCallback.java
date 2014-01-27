@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -102,6 +103,7 @@ public class FileUploadCallback implements Serializable, Callback {
 		int itemSize = 0;
 		long maxSize = 0;
 		String itemName = null;
+		boolean fileTypeMatch = true;
 
 		File tempDir = new File(temp);
 
@@ -142,13 +144,23 @@ public class FileUploadCallback implements Serializable, Callback {
 				if (itemSize <= this.callbackConfiguration.getMaxItems()) {
 					// only if item size not exceeded max
 					for (FileItem item : items) {
+						itemName = item.getName();
 						if (item.getSize() > maxSize) {
 							maxSize = item.getSize();
-							itemName = item.getName();
 							if (maxSize > this.callbackConfiguration
 									.getMaxSize()) {
 								// max size exceeded
 								break;
+							}else if(this.callbackConfiguration.getFileTypePatterns() != null){
+								fileTypeMatch = false;
+								int index = 0;
+								while(!fileTypeMatch && index < this.callbackConfiguration.getFileTypePatterns().size()){
+									Pattern pattern = this.callbackConfiguration.getFileTypePatterns().get(index++);
+									fileTypeMatch = pattern.matcher(itemName).matches();
+								}
+								if(!fileTypeMatch){
+									break;
+								}
 							}
 						}
 					}
@@ -156,6 +168,7 @@ public class FileUploadCallback implements Serializable, Callback {
 			} else {
 				itemSize = 1;
 				maxSize = request.getContentLength();
+				// TODO: Handle file type
 			}
 
 		} catch (Exception ex) {
@@ -194,9 +207,19 @@ public class FileUploadCallback implements Serializable, Callback {
 			errorDetails.put("found", maxSize);
 			errorDetails.put("item", itemName);
 			errorCode = Utilities.JSON_MODEL.KNOWN_ERRORS.MAX_ITEM_SIZE.ordinal();
-			message = " Max item size exceeded (expected: '"
+			message = "Max item size exceeded (expected: '"
 					+ this.callbackConfiguration.getMaxSize() + "', found: '"
 					+ maxSize + "' on item '" + itemName + "').";
+		}else if(fileTypeMatch == false){
+			errorDetails = new HashMap<String, Object>();
+			error = true;
+			String expected = this.callbackConfiguration.getFileTypes();
+			errorDetails.put("expected", expected);
+			errorDetails.put("found", itemName);
+			errorDetails.put("item", itemName);
+			errorCode = Utilities.JSON_MODEL.KNOWN_ERRORS.ITEM_TYPE.ordinal();
+			message = "File type not maches with known file types: (expected: '"
+					+ expected + "', item '" + itemName + "').";
 		}
 		if (error) {
 			callbackResult.setSuccess(false);
