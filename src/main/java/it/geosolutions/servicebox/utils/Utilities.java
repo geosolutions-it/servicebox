@@ -15,7 +15,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.mortbay.util.ajax.JSON;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -123,13 +123,13 @@ public final class Utilities {
 		if(errorDetails != null){
 			messageJSON.put(JSON_MODEL.DETAILS, errorDetails);
 		}
-		messageJSON.put(JSON_MODEL.ERROR_MESSAGE, errorMessage);	
-		String message = JSON.toString(messageJSON);
+		messageJSON.put(JSON_MODEL.ERROR_MESSAGE, errorMessage);
+		ObjectMapper mapper = new ObjectMapper();
 		PrintWriter writer = null;
 		try {
 			writer = response.getWriter();
 			response.setContentType("text/html");
-			writer.write(message);
+			writer.write(mapper.writeValueAsString(messageJSON));
 		} catch (IOException e) {
 			if (LOGGER != null && LOGGER.isLoggable(Level.SEVERE))
 				LOGGER.log(Level.SEVERE, e.getMessage());

@@ -175,7 +175,14 @@
         <artifactId>spring-web</artifactId>
         <version>${spring.version}</version>
     </dependency>
-
+    
+    <!-- Jackson Mapper -->
+    <dependency>
+		<groupId>org.codehaus.jackson</groupId>
+		<artifactId>jackson-mapper-asl</artifactId>
+		<version>1.9.13</version>
+	</dependency>
+	
     <!-- Transform dependencies-->
  
         <dependency>
