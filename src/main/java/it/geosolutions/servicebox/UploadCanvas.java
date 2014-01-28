@@ -33,7 +33,7 @@ import sun.misc.BASE64Decoder;
  * 
  * @author lorenzo
  */
-public class UploadCanvas extends HttpServlet {
+public class UploadCanvas extends ServiceBoxActionServlet {
 
 	private static final long serialVersionUID = -2477077719929697199L;
 	
@@ -182,8 +182,8 @@ public class UploadCanvas extends HttpServlet {
 	 *             if an I/O error occurs
 	 */
 	@Override
-	protected void doGet(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
+	protected void doGetAction(HttpServletRequest request,
+			HttpServletResponse response, ServiceBoxActionParameters actionParameters) throws ServletException, IOException {
 		OutputStream out = response.getOutputStream();
 		String filename = request.getParameter("ID");
 		String fn = request.getParameter("fn");
@@ -271,8 +271,8 @@ public class UploadCanvas extends HttpServlet {
 	 *             if an I/O error occurs
 	 */
 	@Override
-	protected void doPost(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
+	protected void doPostAction(HttpServletRequest request,
+			HttpServletResponse response, ServiceBoxActionParameters actionParameters) throws ServletException, IOException {
 		processRequest(request, response);
 	}
 

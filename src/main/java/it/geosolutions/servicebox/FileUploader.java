@@ -1,6 +1,7 @@
 package it.geosolutions.servicebox;
 
 import it.geosolutions.servicebox.utils.IOUtil;
+import it.geosolutions.servicebox.utils.Utilities;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -33,7 +34,7 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 /**
  * Servlet implementation class FileUploader
  */
-public class FileUploader extends HttpServlet {
+public class FileUploader extends ServiceBoxActionServlet {
 	private static final long serialVersionUID = 1L;
 
 	private final static String PROPERTY_FILE_PARAM = "app.properties";
@@ -103,8 +104,8 @@ public class FileUploader extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
 	 *      response)
 	 */
-	protected void doGet(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
+	protected void doGetAction(HttpServletRequest request,
+			HttpServletResponse response, ServiceBoxActionParameters actionParameters) throws ServletException, IOException {
 
 		// get parameter name
 		String code = request.getParameter("code");
@@ -192,13 +193,15 @@ public class FileUploader extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
 	 *      response)
 	 */
-	protected void doPost(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
+	@SuppressWarnings("unchecked")
+	protected void doPostAction(HttpServletRequest request,
+			HttpServletResponse response, ServiceBoxActionParameters actionParameters) throws ServletException, IOException {
 
 		// get parameter name
 		String moveFile = request.getParameter("moveFile");
 		String type = request.getParameter("type");
 		String fileToMoveName = request.getParameter("zipName");
+		List<FileItem> items = null;
 
 		File fileToMove = null;
 
@@ -206,16 +209,26 @@ public class FileUploader extends HttpServlet {
 
 			// create a file with a random name
 			String uuid = UUID.randomUUID().toString();
-
+			
+			// File items are read only one time. Check if already exists on the actionParameters 
+			if(actionParameters != null 
+					&& actionParameters.isSuccess()
+					&& actionParameters.getItems() != null){
+				items = actionParameters.getItems();
+				
 			// see http://commons.apache.org/fileupload/using.html
-			if (ServletFileUpload.isMultipartContent(request)) {
+			}else if (ServletFileUpload.isMultipartContent(request)) {
 				// Create a factory for disk-based file items
 				FileItemFactory factory = new DiskFileItemFactory();
 				// Create a new file upload handler
 				ServletFileUpload upload = new ServletFileUpload(factory);
 				// Parse the request
-				List /* FileItem */items = upload.parseRequest(request);
-				// Process the uploaded items
+				items = upload.parseRequest(request);
+			}
+
+			// Process the uploaded items
+			if (items != null) {
+				@SuppressWarnings("rawtypes")
 				Iterator iter = items.iterator();
 				while (iter.hasNext()) {
 					FileItem item = (FileItem) iter.next();
@@ -337,24 +350,6 @@ public class FileUploader extends HttpServlet {
 	 */
 	private void writeResponse(HttpServletResponse response, String text)
 			throws IOException {
-		PrintWriter writer = null;
-		try {
-			writer = response.getWriter();
-			writer.write(text);
-		} catch (IOException e) {
-			if (LOGGER.isLoggable(Level.SEVERE))
-				LOGGER.log(Level.SEVERE, e.getMessage());
-		} finally {
-			try {
-				if (writer != null) {
-					writer.flush();
-					writer.close();
-				}
-			} catch (Exception e) {
-				if (LOGGER.isLoggable(Level.SEVERE))
-					LOGGER.log(Level.SEVERE, "Error closing response stream ",
-							e);
-			}
-		}
+		Utilities.writeResponse(response, text, LOGGER);
 	}
 }
