@@ -4,6 +4,9 @@
  */
 package it.geosolutions.servicebox.geoservices;
 
+import it.geosolutions.servicebox.ServiceBoxActionParameters;
+import it.geosolutions.servicebox.ServiceBoxActionServlet;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,7 +26,6 @@ import java.util.zip.ZipInputStream;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
@@ -35,6 +37,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
+import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.w3c.dom.Document;
@@ -45,7 +48,7 @@ import org.w3c.dom.NodeList;
  *
  * @author marco
  */
-public class KMZUploader extends HttpServlet {
+public class KMZUploader extends ServiceBoxActionServlet {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -104,7 +107,8 @@ public class KMZUploader extends HttpServlet {
 
     }
 
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doGetAction(HttpServletRequest request,
+			HttpServletResponse response, ServiceBoxActionParameters actionParameters) throws ServletException, IOException {
 
         String code = request.getParameter("code");
         
@@ -156,24 +160,44 @@ public class KMZUploader extends HttpServlet {
     }
 
     @Override
-    @SuppressWarnings("CallToThreadDumpStack")
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    @SuppressWarnings({ "unchecked" })
+	protected void doPostAction(HttpServletRequest request,
+			HttpServletResponse response, ServiceBoxActionParameters actionParameters) throws ServletException, IOException {
 
         // random name for the directory where I store KMZ uncompressed files
         String uuid = UUID.randomUUID().toString();
+		List<FileItem> items = null;
+		
+		// File items are read only one time. Check if already exists on the actionParameters 
+		if(actionParameters != null 
+				&& actionParameters.isSuccess()
+				&& actionParameters.getItems() != null){
+			items = actionParameters.getItems();
+			
+		// see http://commons.apache.org/fileupload/using.html
+		}else if (ServletFileUpload.isMultipartContent(request)) {
+			// Create a factory for disk-based file items
+			FileItemFactory factory = new DiskFileItemFactory();
+			// Create a new file upload handler
+			ServletFileUpload upload = new ServletFileUpload(factory);
+			// Parse the request
+			try {
+				items = upload.parseRequest(request);
+			} catch (FileUploadException e) {
+                if (LOGGER.isLoggable(Level.SEVERE)) {
+                    LOGGER.log(Level.SEVERE, "Error encountered while uploading file: {0}", e.getMessage());
+                }
+                response.setContentType("text/html");
+                writeResponse(response, "{ \"success\":false, \"errorMessage\":\"Error encountered while uploading file.\"}");
+			}
+		}
 
-        // file uploading is a multipart request
-        if (ServletFileUpload.isMultipartContent(request)) {
-            // Create a factory for disk-based file items
-            FileItemFactory factory = new DiskFileItemFactory();
-            // Create a new file upload handler
-            ServletFileUpload upload = new ServletFileUpload(factory);
-            // Parse the request
-            List /* FileItem */ items = null;
+		// Process the uploaded items
+		if (items != null) {
             try {
-                items = upload.parseRequest(request);
                 // Process the uploaded items
-                Iterator iter = items.iterator();
+                @SuppressWarnings("rawtypes")
+				Iterator iter = items.iterator();
                 while (iter.hasNext()) {
                     FileItem item = (FileItem) iter.next();
 

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="
+	    	http://www.springframework.org/schema/beans     http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/context   http://www.springframework.org/schema/context/spring-context-2.5.xsd
+			http://www.springframework.org/schema/aop       http://www.springframework.org/schema/aop/spring-aop-2.5.xsd"
+       default-autowire="byName">
+       
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="order" value="0"/>
+        <property name="locations">
+            <list>
+                <value>classpath:servicebox.properties</value>
+            </list>
+        </property>
+        <property name="ignoreResourceNotFound" value="false"/>
+	</bean>
+
+	<bean id="fileUploadCallback" class="it.geosolutions.servicebox.FileUploadCallback">
+		<property name="callbackConfiguration">
+			<bean class="it.geosolutions.servicebox.FileUploadCallbackConfiguration">
+				<property name="maxSize" value="1000024" />
+				<property name="maxItems" value="100" />
+				<property name="tempFolder" value="${temp}" />
+				<property name="buffSize" value="1024" />
+				<property name="fileTypes" value="([^*]+(\.(?i)(kml|kmz))$),([^*]+(\.(?i)(map))$)" />
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="serviceBoxActionHandler" class="it.geosolutions.servicebox.ServiceBoxActionHandlerImpl">
+		<property name="callbacks">
+			<list>
+				<ref bean="fileUploadCallback" />
+			</list>
+		</property>
+	</bean>
+  
+    <bean class="org.springframework.beans.factory.config.PropertyOverrideConfigurer">
+        <property name="ignoreResourceNotFound" value="true"/>
+        <property name="order" value="10"/>
+        <property name="locations">
+            <list>
+                <!-- used for overriding props during maven tests -->
+                <value>classpath:servicebox-ovr.properties</value>
+                <!-- used for externalized override -->
+                <value>${servicebox-ovr}</value>
+            </list>
+        </property>
+    </bean>
+    
+</beans>
