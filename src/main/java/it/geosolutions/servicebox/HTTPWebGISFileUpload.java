@@ -13,7 +13,6 @@ import java.util.logging.Logger;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -32,7 +31,7 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
  * @author Tobia di Pisa
  * 
  */
-public class HTTPWebGISFileUpload extends HttpServlet {
+public class HTTPWebGISFileUpload extends ServiceBoxActionServlet {
 
 	/**
 	 * Serialization UID.
@@ -90,9 +89,8 @@ public class HTTPWebGISFileUpload extends HttpServlet {
 	 *            The {@link HttpServletResponse} object by which we can
 	 *            response to the client
 	 */
-	public void doGet(HttpServletRequest httpServletRequest,
-			HttpServletResponse httpServletResponse) throws IOException,
-			ServletException {
+	protected void doGetAction(HttpServletRequest request,
+			HttpServletResponse response, ServiceBoxActionParameters actionParameters) throws ServletException, IOException {
 	}
 
 	/**
@@ -106,16 +104,26 @@ public class HTTPWebGISFileUpload extends HttpServlet {
 	 *            response to the client
 	 */
 	@SuppressWarnings("unchecked")
-	protected void doPost(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
+	protected void doPostAction(HttpServletRequest request,
+			HttpServletResponse response, ServiceBoxActionParameters actionParameters) throws ServletException, IOException {
 
 		String temp = this.props.getProperty("temp");
 		int buffSize = Integer.valueOf(this.props.getProperty("bufferSize"));
 
 		File tempDir = new File(temp);
+		List<FileItem> items = null;
 
 		try {
-			if (tempDir != null && tempDir.exists()) {
+			
+			// File items are read only one time. Check if already exists on the actionParameters 
+			if(actionParameters != null 
+					&& actionParameters.isSuccess()
+					&& actionParameters.getItems() != null){
+				items = actionParameters.getItems();
+				
+			// see http://commons.apache.org/fileupload/using.html
+			} else if (ServletFileUpload.isMultipartContent(request)
+					&& tempDir != null && tempDir.exists()) {
 				DiskFileItemFactory fileItemFactory = new DiskFileItemFactory();
 
 				/*
@@ -136,7 +144,12 @@ public class HTTPWebGISFileUpload extends HttpServlet {
 				/*
 				 * Parse the request
 				 */
-				List<FileItem> items = uploadHandler.parseRequest(request);
+				items = uploadHandler.parseRequest(request);
+			}
+
+			// Process the uploaded items
+			if (items != null) {
+				
 				Iterator<FileItem> itr = items.iterator();
 
 				while (itr.hasNext()) {
