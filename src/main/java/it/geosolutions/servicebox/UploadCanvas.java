@@ -30,26 +30,26 @@ import sun.misc.BASE64Decoder;
 /**
  * Gets a HTML5 Canvas getDataURL output to save a png on a directory of the
  * server
- * 
+ *
  * @author lorenzo
  */
 public class UploadCanvas extends ServiceBoxActionServlet {
 
 	private static final long serialVersionUID = -2477077719929697199L;
-	
+
 	private final static Logger LOGGER = Logger.getLogger(UploadCanvas.class.getSimpleName());
-	
+
 	private static final char COMMA = ',';
-	
+
 	private final static String PROPERTY_FILE_PARAM = "app.properties";
-	
+
 	private static String path = null;
 
 	private Properties props;
 
 	/**
 	 * Initialize the <code>ProxyServlet</code>
-	 * 
+	 *
 	 * @param servletConfig
 	 *            The Servlet configuration passed in by the servlet conatiner
 	 */
@@ -58,7 +58,7 @@ public class UploadCanvas extends ServiceBoxActionServlet {
 
 		String appPropertyFile = getServletContext().getInitParameter(PROPERTY_FILE_PARAM);
 		InputStream inputStream = UploadCanvas.class.getResourceAsStream(appPropertyFile);
-		
+
 		Properties props = new Properties();
 
 		try {
@@ -80,11 +80,11 @@ public class UploadCanvas extends ServiceBoxActionServlet {
 			}
 		}
 	}
-	
+
 	/**
 	 * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
 	 * methods.
-	 * 
+	 *
 	 * @param request
 	 *            servlet request
 	 * @param response
@@ -125,10 +125,6 @@ public class UploadCanvas extends ServiceBoxActionServlet {
 
 			// write png data
 			fos.write(decodedBytes);
-			response.setHeader("Content-Type", "image/png");
-			response.setContentLength(decodedBytes.length);
-			response.setHeader("Content-Disposition", "inline; filename=\""
-					+ "chart.png" + "\"");
 			out.print(f.getName());
 
 		} finally {
@@ -171,7 +167,7 @@ public class UploadCanvas extends ServiceBoxActionServlet {
 	// desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
 	/**
 	 * Handles the HTTP <code>GET</code> method.
-	 * 
+	 *
 	 * @param request
 	 *            servlet request
 	 * @param response
@@ -260,7 +256,7 @@ public class UploadCanvas extends ServiceBoxActionServlet {
 
 	/**
 	 * Handles the HTTP <code>POST</code> method.
-	 * 
+	 *
 	 * @param request
 	 *            servlet request
 	 * @param response
@@ -278,7 +274,7 @@ public class UploadCanvas extends ServiceBoxActionServlet {
 
 	/**
 	 * Returns a short description of the servlet.
-	 * 
+	 *
 	 * @return a String containing servlet description
 	 */
 	@Override
